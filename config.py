@@ -9,18 +9,14 @@ def configurar_firebase():
   if not firebase_admin._apps:
     try:
       if "firebase" in st.secrets:
-        # Pega os segredos e garante que o \n da private_key seja interpretado corretamente
-        secret_dict = dict(st.secrets["firebase"])
-        if "private_key" in secret_dict:
-          secret_dict["private_key"] = secret_dict["private_key"].replace(
-              "\\n", "\n"
-          )
-
-        cred = credentials.Certificate(secret_dict)
-        database_url = secret_dict.get(
+        # Pega os segredos diretamente como dicionário para o Firebase ler
+        firebase_secrets = dict(st.secrets["firebase"])
+        cred = credentials.Certificate(firebase_secrets)
+        database_url = firebase_secrets.get(
             "databaseURL", "https://reurb-1-0-default-rtdb.firebaseio.com/"
         )
       else:
+        # Modo local (computador) usando o arquivo JSON
         caminho_json = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), "serviceAccountKey.json"
         )
