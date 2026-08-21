@@ -9,16 +9,12 @@ def configurar_firebase():
   if not firebase_admin._apps:
     try:
       if "firebase" in st.secrets:
-        # Pega os segredos do bloco [firebase]
         sec = st.secrets["firebase"]
-
-        # Monta o dicionário de credenciais esperado pelo Firebase
         service_account_info = {
             "type": sec["type"],
             "project_id": sec["project_id"],
             "private_key_id": sec["private_key_id"],
-            # Substitui as barras literais por quebras de linha reais na chave
-            "private_key": sec["private_key"].replace("\\n", "\n"),
+            "private_key": sec["private_key"],
             "client_email": sec["client_email"],
             "client_id": sec["client_id"],
             "auth_uri": sec["auth_uri"],
@@ -27,7 +23,6 @@ def configurar_firebase():
             "client_x509_cert_url": sec["client_x509_cert_url"],
             "universe_domain": sec["universe_domain"],
         }
-
         cred = credentials.Certificate(service_account_info)
         database_url = sec.get(
             "databaseURL", "https://reurb-1-0-default-rtdb.firebaseio.com/"
