@@ -8,7 +8,6 @@ from firebase_admin import credentials, db
 def configurar_firebase():
   if not firebase_admin._apps:
     try:
-      # Lê diretamente do arquivo físico serviceAccountKey.json na raiz do projeto
       caminho_json = os.path.join(
           os.path.dirname(os.path.abspath(__file__)), "serviceAccountKey.json"
       )
