@@ -9,14 +9,21 @@ def configurar_firebase():
   if not firebase_admin._apps:
     try:
       if "firebase" in st.secrets:
-        # Pega os segredos diretamente como dicionário para o Firebase ler
-        firebase_secrets = dict(st.secrets["firebase"])
-        cred = credentials.Certificate(firebase_secrets)
-        database_url = firebase_secrets.get(
+        # Converte os segredos do Streamlit em um dicionário padrão
+        secret_dict = dict(st.secrets["firebase"])
+
+        # Garante que os caracteres \n na chave privada sejam interpretados como quebras de linha reais
+        if "private_key" in secret_dict:
+          secret_dict["private_key"] = secret_dict["private_key"].replace(
+              "\\n", "\n"
+          )
+
+        cred = credentials.Certificate(secret_dict)
+        database_url = secret_dict.get(
             "databaseURL", "https://reurb-1-0-default-rtdb.firebaseio.com/"
         )
       else:
-        # Modo local (computador) usando o arquivo JSON
+        # Modo local via arquivo JSON
         caminho_json = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), "serviceAccountKey.json"
         )
