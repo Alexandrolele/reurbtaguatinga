@@ -8,23 +8,11 @@ from firebase_admin import credentials, db
 def configurar_firebase():
   if not firebase_admin._apps:
     try:
-      if "firebase" in st.secrets:
-        sec = st.secrets["firebase"]
-        service_account_info = {
-            "type": sec["type"],
-            "project_id": sec["project_id"],
-            "private_key_id": sec["private_key_id"],
-            "private_key": sec["private_key"],
-            "client_email": sec["client_email"],
-            "client_id": sec["client_id"],
-            "auth_uri": sec["auth_uri"],
-            "token_uri": sec["token_uri"],
-            "auth_provider_x509_cert_url": sec["auth_provider_x509_cert_url"],
-            "client_x509_cert_url": sec["client_x509_cert_url"],
-            "universe_domain": sec["universe_domain"],
-        }
+      if "firebase_json" in st.secrets:
+        # Lê o JSON completo como string e converte para dicionário
+        service_account_info = json.loads(st.secrets["firebase_json"])
         cred = credentials.Certificate(service_account_info)
-        database_url = sec.get(
+        database_url = service_account_info.get(
             "databaseURL", "https://reurb-1-0-default-rtdb.firebaseio.com/"
         )
       else:
