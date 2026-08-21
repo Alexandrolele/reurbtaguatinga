@@ -8,7 +8,7 @@ from firebase_admin import credentials, db
 def configurar_firebase():
   if not firebase_admin._apps:
     try:
-      # Aponta diretamente para o arquivo serviceAccountKey.json na raiz do projeto
+      # Lê diretamente do arquivo físico serviceAccountKey.json na raiz do projeto
       caminho_json = os.path.join(
           os.path.dirname(os.path.abspath(__file__)), "serviceAccountKey.json"
       )
@@ -17,7 +17,7 @@ def configurar_firebase():
         cred = credentials.Certificate(caminho_json)
       else:
         raise FileNotFoundError(
-            f"Arquivo de credenciais não encontrado em: {caminho_json}"
+            f"Arquivo serviceAccountKey.json não encontrado em: {caminho_json}"
         )
 
       firebase_admin.initialize_app(
