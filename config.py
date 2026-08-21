@@ -8,21 +8,28 @@ from firebase_admin import credentials, db
 def configurar_firebase():
   if not firebase_admin._apps:
     try:
-      if "firebase_json" in st.secrets:
-        # Lê o JSON completo salvo em uma única string nas secrets
-        service_account_info = json.loads(st.secrets["firebase_json"])
+      if "firebase" in st.secrets:
+        # Pega os segredos do bloco [firebase]
+        sec = st.secrets["firebase"]
+
+        # Monta o dicionário de credenciais esperado pelo Firebase
+        service_account_info = {
+            "type": sec["type"],
+            "project_id": sec["project_id"],
+            "private_key_id": sec["private_key_id"],
+            # Substitui as barras literais por quebras de linha reais na chave
+            "private_key": sec["private_key"].replace("\\n", "\n"),
+            "client_email": sec["client_email"],
+            "client_id": sec["client_id"],
+            "auth_uri": sec["auth_uri"],
+            "token_uri": sec["token_uri"],
+            "auth_provider_x509_cert_url": sec["auth_provider_x509_cert_url"],
+            "client_x509_cert_url": sec["client_x509_cert_url"],
+            "universe_domain": sec["universe_domain"],
+        }
+
         cred = credentials.Certificate(service_account_info)
-        database_url = service_account_info.get(
-            "databaseURL", "https://reurb-1-0-default-rtdb.firebaseio.com/"
-        )
-      elif "firebase" in st.secrets:
-        secret_dict = dict(st.secrets["firebase"])
-        if "private_key" in secret_dict:
-          secret_dict["private_key"] = secret_dict["private_key"].replace(
-              "\\n", "\n"
-          )
-        cred = credentials.Certificate(secret_dict)
-        database_url = secret_dict.get(
+        database_url = sec.get(
             "databaseURL", "https://reurb-1-0-default-rtdb.firebaseio.com/"
         )
       else:
