@@ -7,8 +7,10 @@ from firebase_admin import credentials, db
 def configurar_firebase():
   if not firebase_admin._apps:
     if "firebase" in st.secrets:
-      # O Streamlit já converte o bloco [firebase] em um dicionário
       key_dict = dict(st.secrets["firebase"])
+      # Converte a string \n literal em quebra de linha real do PEM
+      if "private_key" in key_dict:
+        key_dict["private_key"] = key_dict["private_key"].replace("\\n", "\n")
       cred = credentials.Certificate(key_dict)
     else:
       caminho_json = os.path.join(
