@@ -8,23 +8,24 @@ from firebase_admin import credentials, db
 def configurar_firebase():
   if not firebase_admin._apps:
     try:
-      # Verifica se estamos no Streamlit Cloud e se as Secrets do firebase existem
       if "firebase" in st.secrets:
-        # Carrega os dados direto das Secrets do Streamlit Cloud
-        firebase_secrets = dict(st.secrets["firebase"])
-        cred = credentials.Certificate(firebase_secrets)
+        # Pega os segredos e garante que o \n da private_key seja interpretado corretamente
+        secret_dict = dict(st.secrets["firebase"])
+        if "private_key" in secret_dict:
+          secret_dict["private_key"] = secret_dict["private_key"].replace(
+              "\\n", "\n"
+          )
+
+        cred = credentials.Certificate(secret_dict)
+        database_url = secret_dict.get(
+            "databaseURL", "https://reurb-1-0-default-rtdb.firebaseio.com/"
+        )
       else:
-        # Se não estiver nas Secrets, tenta usar o arquivo JSON local (computador)
         caminho_json = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), "serviceAccountKey.json"
         )
         cred = credentials.Certificate(caminho_json)
-
-      database_url = (
-          st.secrets["firebase"]["databaseURL"]
-          if "firebase" in st.secrets
-          else "https://reurb-1-0-default-rtdb.firebaseio.com/"
-      )
+        database_url = "https://reurb-1-0-default-rtdb.firebaseio.com/"
 
       firebase_admin.initialize_app(cred, {"databaseURL": database_url})
     except Exception as e:
