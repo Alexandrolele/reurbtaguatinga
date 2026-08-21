@@ -8,16 +8,19 @@ from firebase_admin import credentials, db
 def configurar_firebase():
   if not firebase_admin._apps:
     try:
-      if "firebase" in st.secrets:
+      if "firebase_json" in st.secrets:
+        # Lê o JSON completo salvo em uma única string nas secrets
+        service_account_info = json.loads(st.secrets["firebase_json"])
+        cred = credentials.Certificate(service_account_info)
+        database_url = service_account_info.get(
+            "databaseURL", "https://reurb-1-0-default-rtdb.firebaseio.com/"
+        )
+      elif "firebase" in st.secrets:
         secret_dict = dict(st.secrets["firebase"])
-
-        # Garante a formatação correta das quebras de linha na chave privada
         if "private_key" in secret_dict:
-          pk = secret_dict["private_key"]
-          # Se vier com \n literal ou escapado, normaliza para quebra real
-          pk = pk.replace("\\n", "\n")
-          secret_dict["private_key"] = pk
-
+          secret_dict["private_key"] = secret_dict["private_key"].replace(
+              "\\n", "\n"
+          )
         cred = credentials.Certificate(secret_dict)
         database_url = secret_dict.get(
             "databaseURL", "https://reurb-1-0-default-rtdb.firebaseio.com/"
